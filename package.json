@@ -1,0 +1,45 @@
+{
+  "name": "earth-online-desktop",
+  "productName": "Earth Online",
+  "version": "1.0.0",
+  "description": "Earth Online — a real-time 3D digital twin of our planet",
+  "main": "main.js",
+  "author": "super964",
+  "license": "MIT",
+  "private": true,
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/super964/earth-online-desktop.git"
+  },
+  "homepage": "https://github.com/super964/earth-online-desktop#readme",
+  "bugs": {
+    "url": "https://github.com/super964/earth-online-desktop/issues"
+  },
+  "keywords": [
+    "earth",
+    "globe",
+    "threejs",
+    "electron",
+    "geospatial",
+    "earthquake",
+    "wildfire",
+    "aurora",
+    "iss",
+    "digital-twin"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "electron .",
+    "shot": "electron . --shot",
+    "test:feeds": "electron . --testfeeds",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^45.0.0",
+    "puppeteer-core": "^25.16.0"
+  }
+}

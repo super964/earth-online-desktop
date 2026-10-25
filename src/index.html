@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Earth Online — Real-Time 3D Digital Twin</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.js",
+        "three/addons/": "./vendor/three/addons/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-logo" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/>
+      <path d="M3.5 9h17M3.5 15h17"/>
+    </symbol>
+    <symbol id="i-seismic" viewBox="0 0 24 24">
+      <path d="M2 12h4l2.2-6 3 12 2.6-8 1.8 4H22"/>
+    </symbol>
+    <symbol id="i-disaster" viewBox="0 0 24 24">
+      <path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.2v.1"/>
+    </symbol>
+    <symbol id="i-siren" viewBox="0 0 24 24">
+      <path d="M6 17v-4a6 6 0 0 1 12 0v4"/><path d="M4 17h16v3H4zM12 3v2M4.5 6.5 6 8M19.5 6.5 18 8"/>
+    </symbol>
+    <symbol id="i-tsunami" viewBox="0 0 24 24">
+      <path d="M2 9c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>
+      <path d="M2 14c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>
+      <path d="M2 19c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2"/>
+    </symbol>
+    <symbol id="i-storm" viewBox="0 0 24 24">
+      <path d="M3 8h11a3 3 0 1 0-3-3M2 12h15a3 3 0 1 1-3 3M4 16h7"/>
+    </symbol>
+    <symbol id="i-fire" viewBox="0 0 24 24">
+      <path d="M12 2c1.8 4.2-1.6 5.6-1.2 8.4.2 1.4 1.3 2 2.2 1.3 1.4-1.2 1-3 .6-4.4 2.3 1.7 4.4 4.5 4.4 7.5A6 6 0 0 1 6 15c0-3.4 2.6-6.6 6-13Z"/>
+    </symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24">
+      <path d="M12 3 2.8 20h18.4L12 3Z"/><path d="M12 9v5M12 17.2v.1"/>
+    </symbol>
+    <symbol id="i-aurora" viewBox="0 0 24 24">
+      <path d="M12 3l1.7 4.8L18 9.5l-4.3 1.7L12 16l-1.7-4.8L6 9.5l4.3-1.7L12 3Z"/>
+      <path d="M18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z"/>
+    </symbol>
+    <symbol id="i-sat" viewBox="0 0 24 24">
+      <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+      <path d="m3 9 4-4 4 4-4 4-4-4ZM13 19l4-4 4 4-4 4-4-4ZM14 14l6-6"/>
+    </symbol>
+    <symbol id="i-fireball" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="3.2"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7"/><path d="m16.2 16.2 4.8 4.8"/>
+    </symbol>
+    <symbol id="i-target" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+    </symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24">
+      <path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/>
+    </symbol>
+    <symbol id="i-guide" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M9.5 9.2A2.6 2.6 0 1 1 12 12c-.8.5-1 1-1 2M12 17.2v.1"/>
+    </symbol>
+    <symbol id="i-user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.4"/><path d="M5 20c.6-3.4 3.4-5.2 7-5.2s6.4 1.8 7 5.2"/>
+    </symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24">
+      <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/>
+    </symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24">
+      <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5v-8Z"/>
+      <circle cx="12" cy="12.5" r="3.4"/>
+    </symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9"/><path d="M12 7v5.3l3.3 2"/>
+    </symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5-10-6.5Z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-locate" viewBox="0 0 24 24">
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="6.5"/>
+      <circle cx="12" cy="12" r="2.2"/>
+    </symbol>
+    <symbol id="i-external" viewBox="0 0 24 24">
+      <path d="M14 4h6v6M20 4l-8 8"/><path d="M18 14v4.5A1.5 1.5 0 0 1 16.5 20h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>
+    </symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24">
+      <path d="M8 4h8v4a4 4 0 0 1-8 0V4Z"/><path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3"/>
+      <path d="M12 12v4M9 20h6M10 20v-2h4v2"/>
+    </symbol>
+    <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24">
+      <path d="M5 3h11l4 4v14H5V3Z"/><path d="M8 3v6h7V3M8 21v-7h8v7"/>
+    </symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24">
+      <path d="M3 12c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2M3 17c2 0 2 2 4 2s2-2 4-2 2 2 4 2 2-2 4-2"/>
+    </symbol>
+  </svg>
+
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><svg><use href="#i-logo"/></svg></div>
+        <div class="brand-text">
+          <h1>EARTH <span>ONLINE</span></h1>
+          <p>REAL-TIME 3D DIGITAL TWIN</p>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg class="search-icon"><use href="#i-search"/></svg>
+        <input id="search-input" type="text" placeholder="Search any place on Earth..." autocomplete="off" spellcheck="false" />
+        <span class="search-hint">/</span>
+        <div class="search-results" id="search-results" hidden></div>
+      </div>
+
+      <button class="near-btn" id="near-btn" title="Locate me via IP">
+        <svg><use href="#i-target"/></svg><span>NEAR ME</span>
+      </button>
+
+      <div class="top-actions">
+        <div class="live-pill" id="live-pill"><span class="live-dot"></span>LIVE</div>
+        <div class="sync-pill" id="sync-pill">SYNC <span class="sync-sep">·</span> <span id="sync-age">0s ago</span></div>
+        <button class="icon-btn" id="refresh-btn" title="Refresh all feeds">
+          <svg><use href="#i-refresh"/></svg>
+        </button>
+        <button class="ghost-btn" id="guide-btn" title="Guide & data sources">
+          <svg><use href="#i-guide"/></svg><span>GUIDE</span>
+        </button>
+        <button class="ghost-btn" id="ops-btn" title="Your operator profile">
+          <svg><use href="#i-user"/></svg><span id="ops-label">OPERATOR</span>
+        </button>
+        <button class="primary-btn" id="snapshot-btn" title="Save a snapshot of the globe">
+          <svg><use href="#i-camera"/></svg><span>SNAPSHOT</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="stage">
+      <div id="globe"></div>
+      <div class="vignette"></div>
+
+      <aside class="panel layers-panel" id="layers-panel">
+        <div class="panel-head">
+          <div>
+            <h2>DATA LAYERS</h2>
+            <p>GLOBAL SENSOR GRID</p>
+          </div>
+          <span class="signal" id="signal-label">SIGNAL 100%</span>
+        </div>
+
+        <div class="layer-group">
+          <div class="group-label">HAZARDS</div>
+
+          <label class="layer-row">
+            <span class="layer-icon seismic"><svg><use href="#i-seismic"/></svg></span>
+            <span class="layer-name">Seismic activity</span>
+            <span class="layer-count" data-count="seismic">—</span>
+            <span class="switch"><input type="checkbox" data-layer="seismic" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon disaster"><svg><use href="#i-disaster"/></svg></span>
+            <span class="layer-name">Natural disasters</span>
+            <span class="layer-count" data-count="disasters">—</span>
+            <span class="switch"><input type="checkbox" data-layer="disasters" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon siren"><svg><use href="#i-siren"/></svg></span>
+            <span class="layer-name">Other natural events <em>· EONET</em></span>
+            <span class="layer-count" data-count="gdacs">—</span>
+            <span class="switch"><input type="checkbox" data-layer="gdacs" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon tsunami"><svg><use href="#i-tsunami"/></svg></span>
+            <span class="layer-name">Tsunami bulletins</span>
+            <span class="layer-count" data-count="tsunami">—</span>
+            <span class="switch"><input type="checkbox" data-layer="tsunami" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon storm"><svg><use href="#i-storm"/></svg></span>
+            <span class="layer-name">Storm tracks</span>
+            <span class="layer-count" data-count="storms">—</span>
+            <span class="switch"><input type="checkbox" data-layer="storms" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon fire"><svg><use href="#i-fire"/></svg></span>
+            <span class="layer-name">Active fires <em>· 24h</em></span>
+            <span class="layer-count" data-count="fires">—</span>
+            <span class="switch"><input type="checkbox" data-layer="fires" checked /><i></i></span>
+          </label>
+        </div>
+
+        <div class="layer-group">
+          <div class="group-label">WEATHER WARNINGS</div>
+          <label class="layer-row">
+            <span class="layer-icon warning"><svg><use href="#i-warning"/></svg></span>
+            <span class="layer-name">Official warnings</span>
+            <span class="layer-count" data-count="warnings">—</span>
+            <span class="switch"><input type="checkbox" data-layer="warnings" checked /><i></i></span>
+          </label>
+        </div>
+
+        <div class="layer-group">
+          <div class="group-label">SPACE</div>
+          <label class="layer-row">
+            <span class="layer-icon aurora"><svg><use href="#i-aurora"/></svg></span>
+            <span class="layer-name">Aurora forecast</span>
+            <span class="layer-count" data-count="aurora">NOAA</span>
+            <span class="switch"><input type="checkbox" data-layer="aurora" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon iss"><svg><use href="#i-sat"/></svg></span>
+            <span class="layer-name">ISS <em>· live</em></span>
+            <span class="layer-count" data-count="iss">LEO</span>
+            <span class="switch"><input type="checkbox" data-layer="iss" checked /><i></i></span>
+          </label>
+
+          <label class="layer-row">
+            <span class="layer-icon fireball"><svg><use href="#i-fireball"/></svg></span>
+            <span class="layer-name">Fireballs</span>
+            <span class="layer-count" data-count="fireballs">CNEOS</span>
+            <span class="switch"><input type="checkbox" data-layer="fireballs" checked /><i></i></span>
+          </label>
+        </div>
+
+        <div class="legend">
+          <div class="group-label">SIGNAL LEGEND</div>
+          <div class="legend-grid">
+            <span><i style="--c:#ffb648"></i>Seismic</span>
+            <span><i style="--c:#ff6b4a"></i>Wildfire</span>
+            <span><i style="--c:#b58cff"></i>Storm</span>
+            <span><i style="--c:#ff9f1c"></i>Warning</span>
+            <span><i style="--c:#35e0ff"></i>Tsunami</span>
+            <span><i style="--c:#ff4d6d"></i>Volcano</span>
+            <span><i style="--c:#5dffb0"></i>Aurora</span>
+            <span><i style="--c:#8ff7ff"></i>ISS pass</span>
+          </div>
+        </div>
+
+        <div class="panel-foot">
+          <span><span class="tiny-dot"></span> <span id="layer-sources">6 FEEDS LINKED</span></span>
+          <span id="clock-utc">00:00:00 UTC</span>
+        </div>      </aside>
+
+      <div class="pulse-card" id="pulse-card">
+        <div class="pulse-head">
+          <span class="pulse-title"><svg><use href="#i-zap"/></svg> PLANET PULSE</span>
+          <button class="mini-x" id="pulse-close" aria-label="Hide pulse"><svg><use href="#i-x"/></svg></button>
+        </div>
+        <div class="pulse-body">
+          <div class="pulse-gauge" id="pulse-gauge" style="--v:42">
+            <div class="gauge-inner"><b id="pulse-value">42</b><small>ACTIVITY</small></div>
+          </div>
+          <div class="pulse-stats">
+            <div><span>QUAKES 24H</span><b id="pulse-quakes">0</b></div>
+            <div><span>MAX MAG</span><b id="pulse-mag">0.0</b></div>
+            <div><span>WILDFIRES</span><b id="pulse-fires">0</b></div>
+            <div><span>WARNINGS</span><b id="pulse-warnings">0</b></div>
+          </div>
+        </div>
+        <div class="pulse-foot">
+          <div class="rank-line"><span>OPERATOR RANK</span><b id="rank-name">CADET</b></div>
+          <div class="rank-bar"><i id="rank-fill"></i></div>
+          <div class="rank-sub"><span id="rank-points">0 pts</span><span id="rank-next">100 to OBSERVER</span></div>
+        </div>
+      </div>
+
+      <aside class="panel stream-panel" id="stream-panel">
+        <div class="stream-tabs">
+          <button class="tab active" data-tab="live">LIVE</button>
+          <button class="tab" data-tab="space">SPACE</button>
+          <span class="tab-line" id="tab-line"></span>
+        </div>
+
+        <div class="stream-head">
+          <span class="live-dot small"></span>
+          <span id="stream-title">LIVE EVENT STREAM</span>
+          <span class="count">· <b id="event-count">0</b></span>
+        </div>
+
+        <div class="stream-list" id="stream-list"></div>
+
+        <div class="space-view" id="space-view" hidden>
+          <div class="space-card iss-card">
+            <div class="space-card-head"><span class="space-icon"><svg><use href="#i-sat"/></svg></span><div><b>INTERNATIONAL SPACE STATION</b><small>ORBITAL TRACK · LIVE</small></div><span class="live-dot small"></span></div>
+            <div class="space-grid">
+              <div><span>LATITUDE</span><b id="iss-lat">—</b></div>
+              <div><span>LONGITUDE</span><b id="iss-lon">—</b></div>
+              <div><span>ALTITUDE</span><b id="iss-alt">—</b></div>
+              <div><span>VELOCITY</span><b id="iss-vel">—</b></div>
+            </div>
+            <button class="space-btn" id="iss-locate">TRACK ON GLOBE <svg><use href="#i-chevron"/></svg></button>
+          </div>
+
+          <div class="space-card aurora-card">
+            <div class="space-card-head"><span class="space-icon aurora"><svg><use href="#i-aurora"/></svg></span><div><b>AURORA OVAL</b><small>NOAA SWPC · OVATION</small></div></div>
+            <p id="aurora-summary">Awaiting solar wind telemetry…</p>
+            <div class="space-grid two">
+              <div><span>ACTIVE CELLS</span><b id="aurora-cells">—</b></div>
+              <div><span>PEAK INTENSITY</span><b id="aurora-peak">—</b></div>
+            </div>
+            <button class="space-btn" id="aurora-view">FLY TO AURORA <svg><use href="#i-chevron"/></svg></button>
+          </div>
+
+          <div class="space-card">
+            <div class="space-card-head"><span class="space-icon fireball"><svg><use href="#i-fireball"/></svg></span><div><b>RECENT FIREBALLS</b><small>NASA CNEOS · ATMOSPHERIC IMPACTS</small></div></div>
+            <div class="fireball-list" id="fireball-list"></div>
+          </div>
+        </div>
+
+        <div class="stream-foot">
+          <span class="feed-status" id="feed-status"><span class="tiny-dot"></span> ALL SYSTEMS NOMINAL</span>
+          <span class="feed-sources" id="feed-sources">USGS · NASA · NOAA</span>
+        </div>
+      </aside>
+
+      <button class="time-btn" id="time-btn"><svg><use href="#i-clock"/></svg> TIME MACHINE</button>
+
+      <div class="hint" id="hint">
+        <span class="hint-dot"></span> TAP ANYWHERE ON EARTH TO PROBE LIVE CONDITIONS
+      </div>
+
+      <div class="timeline" id="timeline" hidden>
+        <button class="tl-play" id="tl-play" title="Play timeline"><svg><use href="#i-play"/></svg></button>
+        <div class="tl-main">
+          <div class="tl-top">
+            <span class="tl-label">TIME MACHINE</span>
+            <span class="tl-date" id="tl-date">—</span>
+            <span class="tl-offset" id="tl-offset">LIVE</span>
+          </div>
+          <input type="range" id="tl-range" min="0" max="30" step="1" value="0" />
+          <div class="tl-scale"><span>LIVE</span><span>-7d</span><span>-14d</span><span>-21d</span><span>-30d</span></div>
+        </div>
+        <button class="tl-live" id="tl-live">RETURN TO LIVE</button>
+      </div>
+
+      <div class="probe-card" id="probe-card" hidden></div>
+      <div class="detail-card" id="detail-card" hidden></div>
+
+      <div class="toast-stack" id="toast-stack"></div>
+
+      <div class="loader" id="loader">
+        <div class="loader-inner">
+          <div class="loader-orb"><span></span><i></i></div>
+          <h2>EARTH <b>ONLINE</b></h2>
+          <p id="loader-msg">Establishing downlink…</p>
+          <div class="loader-bar"><i id="loader-fill"></i></div>
+          <div class="loader-src">USGS · NASA EONET · NOAA SWPC · NWS · CNEOS</div>
+        </div>
+      </div>
+
+      <div class="modal" id="guide-modal" hidden>
+        <div class="modal-backdrop" data-close="guide-modal"></div>
+        <div class="modal-card guide-card">
+          <button class="modal-x" data-close="guide-modal"><svg><use href="#i-x"/></svg></button>
+          <div class="modal-kicker">FIELD MANUAL · v1.0</div>
+          <h3>Welcome to <span>Earth Online</span></h3>
+          <p class="modal-lead">A living digital twin of the planet. Real seismic sensors, weather services and satellites feed this globe every minute. Your job: observe, probe, and log the planet's pulse.</p>
+          <div class="guide-grid">
+            <div class="guide-item"><span class="gi">01</span><b>Probe the surface</b><p>Click anywhere on the globe to pull live weather, local time and nearby hazards for that coordinate.</p></div>
+            <div class="guide-item"><span class="gi">02</span><b>Read the stream</b><p>The right panel lists warnings, quakes, storms and fires as they arrive. Click an entry to fly to it.</p></div>
+            <div class="guide-item"><span class="gi">03</span><b>Travel in time</b><p>Rewind up to 30 days to replay the planet's seismic history and see the sun where it was.</p></div>
+            <div class="guide-item"><span class="gi">04</span><b>Earn your rank</b><p>Every unique probe and discovery earns points. Climb from Cadet to Planet Keeper.</p></div>
+          </div>
+          <div class="guide-sources">
+            <div><span>SEISMIC</span> USGS Earthquake Hazards</div>
+            <div><span>EVENTS</span> NASA EONET</div>
+            <div><span>WARNINGS</span> NOAA / National Weather Service</div>
+            <div><span>SPACE</span> NOAA SWPC · NASA CNEOS · WhereTheISS</div>
+            <div><span>WEATHER</span> Open-Meteo · BigDataCloud</div>
+          </div>
+          <div class="guide-keys">
+            <span><kbd>/</kbd> search</span><span><kbd>T</kbd> time machine</span><span><kbd>R</kbd> refresh</span><span><kbd>ESC</kbd> close</span>
+          </div>
+          <div class="guide-foot">Not affiliated with earth-live.app. An independent, offline-friendly tribute build. Data © their respective providers.</div>
+        </div>
+      </div>
+
+      <div class="modal" id="ops-modal" hidden>
+        <div class="modal-backdrop" data-close="ops-modal"></div>
+        <div class="modal-card ops-card">
+          <button class="modal-x" data-close="ops-modal"><svg><use href="#i-x"/></svg></button>
+          <div class="modal-kicker">OPERATOR PROFILE</div>
+          <div class="ops-head">
+            <div class="ops-badge"><svg><use href="#i-trophy"/></svg></div>
+            <div>
+              <h3 id="ops-rank">CADET</h3>
+              <p><b id="ops-points">0</b> DATA POINTS · <span id="ops-probes">0</span> PROBES · <span id="ops-disc">0</span> DISCOVERIES</p>
+            </div>
+          </div>
+          <div class="ops-progress"><i id="ops-fill"></i></div>
+          <div class="ops-next" id="ops-next">Next rank: OBSERVER at 100 points</div>
+          <div class="ops-achievements" id="ops-achievements"></div>
+          <button class="ops-reset" id="ops-reset">RESET PROGRESS</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="./vendor/topojson.min.js"></script>
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>
